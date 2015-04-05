@@ -6,8 +6,9 @@ class EvaluateHands
 
   def call
     hand_one_eval = evaluate_cards @player_one_hand
+    hand_two_eval = evaluate_cards @player_two_hand
 
-    { 'player_one' => hand_one_eval, 'player_two' => "sucks" }
+    { 'player_one' => hand_one_eval, 'player_two' => hand_two_eval }
   end
 
   private
@@ -20,7 +21,7 @@ class EvaluateHands
     evaluated_cards = tally_value_frequency(hand).select  { |k,v| v == 2 }
 
     if evaluated_cards.length == 1
-      { 'one_pair' => evaluated_cards.keys, 'rank' => 1 }
+      { 'type' => 'one_pair', 'values' => evaluated_cards.keys, 'rank' => 1 }
     end
   end
 
@@ -28,7 +29,7 @@ class EvaluateHands
     evaluated_cards = tally_value_frequency(hand).select  { |k,v| v == 2 }
 
     if evaluated_cards.length == 2
-      { 'two_pair' => evaluated_cards.keys, 'rank' => 2 }
+      { 'type' => 'two_pair', 'values' => evaluated_cards.keys, 'rank' => 2 }
     else
       one_pair hand
     end
@@ -38,7 +39,7 @@ class EvaluateHands
     evaluated_cards = tally_value_frequency(hand).select  { |k,v| v == 3 }
 
     if evaluated_cards.length == 1
-      { 'three_of_a_kind' => evaluated_cards.keys, 'rank' => 3 }
+      { 'type' => 'three_of_a_kind', 'values' => evaluated_cards.keys, 'rank' => 3 }
     else
       two_pair hand
     end
@@ -50,8 +51,9 @@ class EvaluateHands
 
   def straight hand
     values = collect_values hand
+
       if straight? values
-        { 'straight' => [values[0]], 'rank' => 4}
+        { 'type' => 'straight', 'values' => [values[0]], 'rank' => 4 }
       else
         three_of_a_kind hand
       end
@@ -66,7 +68,7 @@ class EvaluateHands
 
   def flush hand
     if flush? collect_suits hand
-      { 'flush' => [collect_suits(hand).first], 'rank' => 5 }
+      { 'type' => 'flush', 'values' => [collect_suits(hand).first], 'rank' => 5 }
     else
       straight hand
     end
@@ -79,7 +81,8 @@ class EvaluateHands
   def full_house hand
     if three_of_a_kind? hand
       if collect_values(hand).uniq.length == 2
-        { 'full_house' => collect_values(hand).uniq, 'rank' => 6 }
+        triple =  tally_value_frequency(hand).select  { |k,v| v == 3 }.keys
+        { 'type' => 'full_house', 'values' => triple, 'rank' => 6 }
       else
         flush hand
       end
@@ -90,8 +93,9 @@ class EvaluateHands
 
   def four_of_a_kind hand
     evaluated_cards = tally_value_frequency(hand).select  { |k,v| v == 4 }
+
     if evaluated_cards.length == 1
-      { 'four_of_a_kind' => evaluated_cards.keys, 'rank' => 7 }
+      { 'type' => 'four_of_a_kind', 'values' => evaluated_cards.keys, 'rank' => 7 }
     else
       full_house hand
     end
@@ -101,8 +105,7 @@ class EvaluateHands
     if straight? collect_values hand
       if flush? collect_suits hand
         value = collect_values(hand)[0]
-        suit = collect_suits(hand)[0]
-        { 'straight_flush' => [suit, value], 'rank' => 8 }
+        { 'type' => 'straight_flush', 'values' => [value], 'rank' => 8 }
       else
         four_of_a_kind hand
       end
@@ -113,8 +116,9 @@ class EvaluateHands
 
   def royal_flush hand
     value_order = collect_values(hand).sort
+
     if value_order.first == 10 && collect_suits(hand).uniq.length == 1
-      { 'royal_flush' => collect_suits(hand).uniq, 'rank' => 9 }
+      { 'type' =>'royal_flush', 'values' => collect_suits(hand).uniq, 'rank' => 9 }
     else
       straight_flush hand
     end

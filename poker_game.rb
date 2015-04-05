@@ -7,16 +7,20 @@ class PokerGame
   def  initialize
     file = ReadFile.new.call
     @players = ConstructHands.new(file).call
-    @hand_results = []
+    @results = []
   end
 
   def play_game
+    @current_round = 0
+    evaluated_hands = []
 
     @players["player_one"].each_index do |index|
       hand_one = @players["player_one"][index]
       hand_two = @players["player_two"][index]
-      @hand_results << EvaluateHands.new(hand_one, hand_two).call
+      evaluated_hands = EvaluateHands.new(hand_one, hand_two).call
+      @results << PlayRound.new(hand_one, hand_two, evaluated_hands).call
     end
-    puts "Heyooo"
+    puts "Of 1000 games Player One won #{@results.select { |elem| elem == 1 }.length}"
+    puts "Player Two won #{@results.select { |elem| elem == 2 }.length}"
   end
 end
