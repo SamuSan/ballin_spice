@@ -18,14 +18,15 @@ private
       player_two_values = @hand_two.cards.map(&:value).sort.reverse
       @winner = highest_card_wins(player_one_values, player_two_values)
     elsif clear_winner?
-      if @evaluated_hands['player_one'].nil?
+      if @evaluated_hands['player_one'].nil? && @evaluated_hands['player_two']
         @winner = 2
-      elsif @evaluated_hands['player_two'].nil?
+      elsif @evaluated_hands['player_two'].nil? && @evaluated_hands['player_one']
         @winner = 1
       end
     else
       @winner = decide_winner
     end
+
     @winner
   end
 
@@ -71,7 +72,7 @@ private
 
     if player_one_hand['rank'] != 5
       @winner = highest_card_wins(player_one_hand['values'],player_two_hand['values'])
-      if @winner == nil
+      if @winner == 0
         @winner = check_with_all_card_values
       end
     else

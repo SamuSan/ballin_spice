@@ -1,7 +1,7 @@
 require_relative '../poker_hand.rb'
 
 describe PokerHand do
-  let(:card_string) { "8C TS KC 9H 4S" }
+  let(:card_string) { ["8C", "TS", "KC", "9H", "4S"] }
 
 
   describe "initialize" do
